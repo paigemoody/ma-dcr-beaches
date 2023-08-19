@@ -31,7 +31,6 @@ jobs:
     - name: Fetch latest data
       run: |-
         date --help
-        export previous_date=$(date -v -1d '+%m-%d-%y')
         export previous_day_year=$(date -v -1d +'%Y')
         export previous_day_month=$(date -v -1d +'%m')
         export previous_day=$(date -v -1d +'%d')
