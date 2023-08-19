@@ -1,0 +1,48 @@
+name: Scrape latest data
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron:  '00 13 * * *'
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out this repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - uses: actions/cache@v2
+      name: Configure pip caching
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install Python dependencies
+      run: |-
+        pip install -r requirements.txt
+    - name: Fetch latest data
+      run: |-
+        cp Beach_Status_List.csv Beach_Status_List-old.csv
+        curl -o Beach_Status_List-unsorted.csv "https://www.mass.gov/files/csv/2023-08/BeachPostingTbl-08-15pm.csv?accessType=DOWNLOAD"
+        # Remove heading line and use it to start a new file
+        head -n 1 Beach_Status_List-unsorted.csv > Beach_Status_List.csv
+        # Sort all but the first line and append to that file
+        tail -n +2 "Beach_Status_List-unsorted.csv" | sort >> Beach_Status_List.csv
+        # Generate commit message using csv-diff
+        csv-diff Beach_Status_List-old.csv Beach_Status_List.csv --key=Beach > message.txt
+    - name: Commit and push if it changed
+      run: |-
+        git config user.name "Automated"
+        git config user.email "actions@users.noreply.github.com"
+        git add Beach_Status_List.csv
+        timestamp=$(date -u)
+        git commit -F message.txt || exit 0
+        git push
