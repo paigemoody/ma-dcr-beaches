@@ -30,8 +30,14 @@ jobs:
         pip install -r requirements.txt
     - name: Fetch latest data
       run: |-
+        current_year=$(date +'%Y')
+        current_month=$(date +'%m')
+        base_url="https://www.mass.gov/files/csv/${current_year}-${current_month}"
+        current_date=$(date +'%Y-%m-%d')
+        filename="BeachPostingTbl-${current_date}.csv"
+        csv_url="${base_url}/${filename}?accessType=DOWNLOAD"
         cp Beach_Status_List.csv Beach_Status_List-old.csv
-        curl -o Beach_Status_List-unsorted.csv "https://www.mass.gov/files/csv/2023-08/BeachPostingTbl-08-15pm.csv?accessType=DOWNLOAD"
+        curl -o Beach_Status_List-unsorted.csv "${csv_url}"
         # Remove heading line and use it to start a new file
         head -n 1 Beach_Status_List-unsorted.csv > Beach_Status_List.csv
         # Sort all but the first line and append to that file
