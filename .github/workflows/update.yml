@@ -2,9 +2,9 @@ name: Scrape latest data
 
 on:
   push:
-  workflow_dispatch:
-  schedule:
-    - cron:  '0 14 * * *'
+  # workflow_dispatch:
+  # schedule:
+  #   - cron:  '0 14 * * *'
 
 jobs:
   scheduled:
@@ -28,27 +28,37 @@ jobs:
     - name: Install Python dependencies
       run: |-
         pip install -r requirements.txt
-    - name: Fetch latest data
+    - name: Fetch Sept 1, 2023 (last day of posting for season)
       run: |-
-        date --help
-        export previous_day_year=$(date -v -1d +'%Y')
-        export previous_day_month=$(date -v -1d +'%m')
-        export previous_day=$(date -v -1d +'%d')
-        echo $previous_day_year
-        echo $previous_day_month
-        echo $previous_day
-        export base_url="https://www.mass.gov/files/csv/${previous_day_year}-${previous_day_month}"
-        export filename="BeachPostingTbl-${previous_day_month}-${previous_day}pm.csv"
-        export csv_url="${base_url}/${filename}?accessType=DOWNLOAD"
-        echo $csv_url
         cp Beach_Status_List.csv Beach_Status_List-old.csv
-        curl -o Beach_Status_List-unsorted.csv "${csv_url}"
+        curl -o Beach_Status_List-unsorted.csv "https://www.mass.gov/files/csv/2023-09/BeachPostingTbl-09-01pm.csv?accessType=DOWNLOAD"
         # Remove heading line and use it to start a new file
         head -n 1 Beach_Status_List-unsorted.csv > Beach_Status_List.csv
         # Sort all but the first line and append to that file
         tail -n +2 "Beach_Status_List-unsorted.csv" | sort >> Beach_Status_List.csv
         # Generate commit message using csv-diff
         csv-diff Beach_Status_List-old.csv Beach_Status_List.csv --key=Beach > message.txt
+    # - name: Fetch latest data
+    #   run: #|-
+        # date --help
+        # export previous_day_year=$(date -v -1d +'%Y')
+        # export previous_day_month=$(date -v -1d +'%m')
+        # export previous_day=$(date -v -1d +'%d')
+        # echo $previous_day_year
+        # echo $previous_day_month
+        # echo $previous_day
+        # export base_url="https://www.mass.gov/files/csv/${previous_day_year}-${previous_day_month}"
+        # export filename="BeachPostingTbl-${previous_day_month}-${previous_day}pm.csv"
+        # export csv_url="${base_url}/${filename}?accessType=DOWNLOAD"
+        # echo $csv_url
+        # cp Beach_Status_List.csv Beach_Status_List-old.csv
+        # curl -o Beach_Status_List-unsorted.csv "${csv_url}"
+        # # Remove heading line and use it to start a new file
+        # head -n 1 Beach_Status_List-unsorted.csv > Beach_Status_List.csv
+        # # Sort all but the first line and append to that file
+        # tail -n +2 "Beach_Status_List-unsorted.csv" | sort >> Beach_Status_List.csv
+        # # Generate commit message using csv-diff
+        # csv-diff Beach_Status_List-old.csv Beach_Status_List.csv --key=Beach > message.txt
     - name: Commit and push if it changed
       run: |-
         git config user.name "Automated"
