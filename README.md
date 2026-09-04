@@ -3,7 +3,7 @@
 Tracking current public beach postings in Massachusetts.
 
 > The water quality at public beaches in Massachusetts is required to be monitored. When the water quality is unsafe, the beach is required to be “posted” with a sign that indicates swimming is unsafe and may cause illness. 
-Source: [DCR](https://www.mass.gov/info-details/current-public-beach-postings)
+Source: [DCR](https://www.mass.gov/info-details/interactive-beach-water-quality-dashboard)
 
 ## Setup
 
