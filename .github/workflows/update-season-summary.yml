@@ -1,10 +1,8 @@
-name: Scrape latest data
+name: Update season summary
 
 on:
-  push:
-    branches: [main]
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '0 14 * * 0'
 
 jobs:
   scheduled:
@@ -28,20 +26,13 @@ jobs:
     - name: Install Python dependencies
       run: |-
         pip install -r requirements.txt
-    - name: Fetch latest postings
+    - name: Rebuild season summary from daily snapshots
       run: |-
-        cp Beach_Status_List.csv Beach_Status_List-old.csv
-        python process_v2/scrape_postings.py --output Beach_Status_List.csv
-        # Generate commit message using csv-diff, keyed on Municipality+Beach
-        # since Beach names alone aren't unique (e.g. "Sandy Beach" in both
-        # Danvers and Swansea)
-        python process_v2/diff_postings.py Beach_Status_List-old.csv Beach_Status_List.csv
-        csv-diff Beach_Status_List-old-keyed.csv Beach_Status_List-keyed.csv --key=Key > message.txt
+        python process_v2/join_csvs.py
     - name: Commit and push if it changed
       run: |-
         git config user.name "Automated"
         git config user.email "actions@users.noreply.github.com"
-        git add Beach_Status_List.csv process_v2/outputs/
-        timestamp=$(date -u)
-        git commit -F message.txt || exit 0
+        git add static_data/
+        git commit -m "Update season summary" || exit 0
         git push
