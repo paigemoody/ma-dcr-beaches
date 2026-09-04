@@ -37,6 +37,6 @@ if __name__ == "__main__":
     # Archive today's snapshot so join_csvs.py can later fold it into a season
     # summary, the same way process/outputs/ fed process/join_csvs.py.
     os.makedirs(OUTPUTS_DIR, exist_ok=True)
-    snapshot_path = os.path.join(OUTPUTS_DIR, f"postings-{date.today().strftime('%m-%d')}.csv")
+    snapshot_path = os.path.join(OUTPUTS_DIR, f"postings-{date.today().strftime('%Y-%m-%d')}.csv")
     postings.to_csv(snapshot_path, index=False)
     print(f"Archived snapshot to {snapshot_path}")

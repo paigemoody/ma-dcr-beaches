@@ -1,11 +1,13 @@
+import argparse
 import os
+from datetime import date
 
 import pandas as pd
 
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "outputs")
 
 
-def process_csv_files(input_dir, output_file):
+def process_csv_files(input_dir, output_file, year):
     df_list = []
     date_columns = {}
 
@@ -13,7 +15,10 @@ def process_csv_files(input_dir, output_file):
         if not filename.endswith(".csv"):
             continue
 
-        date_str = filename.removeprefix("postings-").removesuffix(".csv").replace("-", "_")
+        file_year, month, day = filename.removeprefix("postings-").removesuffix(".csv").split("-")
+        if file_year != str(year):
+            continue
+        date_str = f"{month}_{day}"
         new_column_name = f"posting_reason_{date_str}"
 
         df = pd.read_csv(os.path.join(input_dir, filename))
@@ -34,6 +39,10 @@ def process_csv_files(input_dir, output_file):
 
 
 if __name__ == "__main__":
-    output_csv = os.path.join("static_data", "postings_summer_2026.csv")
-    process_csv_files(OUTPUTS_DIR, output_csv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--year", type=int, default=date.today().year)
+    args = parser.parse_args()
+
+    output_csv = os.path.join("static_data", f"postings_summer_{args.year}.csv")
+    process_csv_files(OUTPUTS_DIR, output_csv, args.year)
     print(f"Wrote season summary to {output_csv}")
