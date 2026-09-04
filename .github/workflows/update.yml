@@ -2,9 +2,9 @@ name: Scrape latest data
 
 on:
   push:
-  # workflow_dispatch:
-  # schedule:
-  #   - cron:  '0 14 * * *'
+    branches: [main]
+  schedule:
+    - cron: '0 14 * * *'
 
 jobs:
   scheduled:
@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.8
+        python-version: "3.11"
     - uses: actions/cache@v3
       name: Configure pip caching
       with:
