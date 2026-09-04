@@ -12,7 +12,9 @@ def fetch_postings():
     ts = TS()
     ts.loads(DASHBOARD_URL)
     workbook = ts.getWorkbook()
-    closure_table = next(w for w in workbook.worksheets if w.name == "ClosureTable")
+    closure_table = next((w for w in workbook.worksheets if w.name == "ClosureTable"), None)
+    if closure_table is None:
+        raise RuntimeError('Worksheet "ClosureTable" not found in dashboard workbook')
     df = closure_table.data.rename(
         columns={
             "Town-alias": "Municipality",
